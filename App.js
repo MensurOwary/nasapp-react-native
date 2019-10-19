@@ -1,8 +1,17 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  SafeAreaView,
+  FlatList
+} from "react-native";
 
 import * as satellite from "satellite.js";
 import { ListItem } from "react-native-elements";
+
+import Constants from "expo-constants";
 
 export default function App() {
   // states
@@ -15,6 +24,10 @@ export default function App() {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const [refresh, setRefresh] = useState(false);
+
+  var ARRAY = [];
 
   // states end
 
@@ -73,64 +86,71 @@ export default function App() {
     );
 
     if (dist < 1500) {
-      console.log('hre')
-      setCoords([
-        ...coords,
-        {
-          name,
-          lat: latitudeStr,
-          lon: longitudeStr
-        }
-      ]);
+      let obj = {
+        name,
+        lat: latitudeStr,
+        lon: longitudeStr
+      };
+      console.log(ARRAY.length);
+      ARRAY.push(obj);
     }
   };
 
   const request = () => {
-    setLoading(true)
+    ARRAY = [];
+    setLoading(true);
     currentPosition();
     fetch("https://nasapp-backend-demo.herokuapp.com")
       .then(res => res.json())
       .then(res => {
-        console.log(res.length)
-        console.log(res)
+        console.log("called");
         res.forEach(e => {
           callSatellite(e.name, e.line1, e.line2);
         });
       })
       .catch(reason => {
         console.log(reason);
-        setLoading(false)
+        setLoading(false);
       })
       .finally(() => {
-        setLoading(false)
-      })
+        setLoading(false);
+        setCoords([...[], ...ARRAY]);
+      });
   };
 
+  const Item = ({ title }) => {
+    return (
+      <View style={styles.item}>
+        <Text style={styles.title}>{title}</Text>
+      </View>
+    );
+  };
+
+  renderList = () => {
+    if (!loading) {
+      return (
+        <SafeAreaView style={styles.listContainer}>
+          <FlatList
+            data={coords}
+            renderItem={({ item }) => <Item id={item.name} title={item.name} />}
+            keyExtractor={item => item.name}
+          />
+        </SafeAreaView>
+      );
+    }
+    return null;
+  };
 
   return (
     <View style={styles.container}>
       <Text>Lat : {coords.lat}</Text>
       <Text>Lon : {coords.lon}</Text>
-
       <Text>Curr : Lat : {location.lat}</Text>
       <Text>Curr : Lon : {location.lon}</Text>
       <Text>Curr : Date : {new Date(location.timestamp).toDateString()}</Text>
-
       <Button title="Get data" onPress={request} />
-      <Button title="Get Current Position" onPress={currentPosition} />
-
-      <Text>Loading : {loading ? 'true' : 'false'}</Text>
-
-      <View>
-        {coords.map((item, i) => (
-          <ListItem
-            key={i}
-            title={item.name}
-            bottomDivider
-            chevron
-          />
-        ))}
-      </View>
+      <Text>Loading : {loading ? "true" : "false"}</Text>
+      {renderList()}
     </View>
   );
 }
@@ -139,7 +159,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
+    alignItems: "center"
     // justifyContent: "center"
+  },
+  listContainer: {
+    flex: 1,
+    marginTop: Constants.statusBarHeight
+  },
+  item: {
+    backgroundColor: "lightblue",
+    padding: 3,
+    marginVertical: 2
+  },
+  title: {
+    fontSize: 15
   }
 });
