@@ -27,7 +27,7 @@ const MainNavigator = createStackNavigator(
     }
   },
   {
-    initialRouteName: "Satellite"
+    initialRouteName: "Start"
   }
 );
 

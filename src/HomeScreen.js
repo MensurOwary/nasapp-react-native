@@ -15,10 +15,11 @@ import {
 import * as satellite from "satellite.js";
 
 import { ListItem, SearchBar } from "react-native-elements";
+import { TouchableNativeFeedback } from "react-native-gesture-handler";
 
 console.disableYellowBox = true;
 
-export default function HomeScreen() {
+export default function HomeScreen(props) {
   // states
   const [coords, setCoords] = useState([]);
   const [prevCoords, setPrevCoords] = useState([]);
@@ -107,7 +108,7 @@ export default function HomeScreen() {
       longitudeStr
     );
 
-    if (dist < 1500) {
+    if (dist < 3000) {
       let obj = {
         name,
         lat: latitudeStr,
@@ -122,7 +123,8 @@ export default function HomeScreen() {
     setLoading(true);
     setSearched(true);
     currentPosition();
-    fetch("https://nasapp-backend-demo.herokuapp.com")
+    fetch("https://spaceracoons.herokuapp.com/")
+      // ("https://nasapp-backend-demo.herokuapp.com")
       .then(res => res.json())
       .then(res => {
         res.forEach(e => {
@@ -142,7 +144,11 @@ export default function HomeScreen() {
   keyExtractor = (item, index) => index.toString();
 
   renderItem = ({ item }) => (
-    <ListItem title={item.name} bottomDivider chevron />
+    <TouchableNativeFeedback
+      onPress={() => props.navigation.navigate("Satellite")}
+    >
+      <ListItem title={item.name} bottomDivider chevron />
+    </TouchableNativeFeedback>
   );
 
   renderList = () => {
