@@ -6,18 +6,36 @@ export default function StartScreen(props) {
     <View
       style={{
         flex: 1,
-        flexDirection: "row",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#004ecb"
       }}
     >
-      <TouchableWithoutFeedback onPress={() => props.navigation.navigate("Home")}>
-        <View
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        <Image
           style={{
             width: 300,
-            height: 300,
-            borderRadius: 300 / 2,
+            height: 60
+          }}
+          source={require("../img/logo.png")}
+        />
+      </View>
+
+      <TouchableWithoutFeedback
+        onPress={() => props.navigation.navigate("Home")}
+      >
+        <View
+          style={{
+            width: 250,
+            height: 250,
+            borderRadius: 250 / 2,
             overflow: "hidden",
             borderWidth: 3,
             borderColor: "#004ecb",

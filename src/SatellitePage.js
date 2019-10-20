@@ -1,29 +1,55 @@
-import React from "react";
-import { Image, View, TouchableWithoutFeedback, Text } from "react-native";
-import { Avatar, Button, Card, Title, Paragraph } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView } from "react-native";
+import { Card, Title, Paragraph } from "react-native-paper";
 
-const showCard = (props) => {
+const showCard = data => {
   return (
-    <Card>
-      <Card.Title
-        title="Galileo"
-        subtitle="This is a Carlin"
-      />
-      <Card.Content>
-        <Title>Fredddie Mercury</Title>
-        <Paragraph>This is body</Paragraph>
-      </Card.Content>
-      <Card.Cover source={{ uri: "https://picsum.photos/700" }} />
-      <Card.Actions>
-        <Button>Cancel</Button>
-        <Button>Ok</Button>
-      </Card.Actions>
-    </Card>
+    <ScrollView>
+      <Card>
+        <Card.Title title={data.name} subtitle={data.release_date} />
+        <Card.Content>
+          <Title>{data.name}</Title>
+          <Paragraph>{data.detailed_info}</Paragraph>
+        </Card.Content>
+        <Card.Cover
+          source={{
+            uri: `http://${data.image}`
+          }}
+        />
+      </Card>
+    </ScrollView>
   );
 };
 
 export default function SatellitePage(props) {
-  return (
-    <View>{showCard()}</View>
-  );
+  const [data, setData] = useState({
+    name: "",
+    info: "",
+    releaseDate: "",
+    detailedInfo: ""
+  });
+
+  useEffect(() => {
+    props.navigation.setParams({ title: data.name });
+  }, [data.name]);
+
+  async function asyncFunction() {
+    let response = await fetch(
+      `https://spaceracoons.herokuapp.com/getbyname/${props.navigation.getParam(
+        "name"
+      )}`
+    );
+    let data = await response.json();
+    data.image = props.navigation.getParam("image");
+    setData(data);
+  }
+
+  useEffect(() => {
+    asyncFunction();
+  }, []);
+  return <View>{showCard(data)}</View>;
 }
+
+SatellitePage.navigationOptions = ({ navigation }) => ({
+  title: navigation.getParam("title", "Satellite")
+});

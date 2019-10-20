@@ -21,9 +21,6 @@ const MainNavigator = createStackNavigator(
     },
     Satellite: {
         screen: SatellitePage,
-        navigationOptions: () => ({
-            title: `Satellite`
-        })
     }
   },
   {

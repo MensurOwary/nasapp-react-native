@@ -89,7 +89,7 @@ export default function HomeScreen(props) {
     return c * r;
   };
 
-  const callSatellite = (name, tleLine1, tleLine2) => {
+  const callSatellite = (name, tleLine1, tleLine2, data) => {
     let satrec = satellite.twoline2satrec(tleLine1, tleLine2);
     let positionAndVelocity = satellite.propagate(satrec, new Date());
     let positionEci = positionAndVelocity.position;
@@ -108,11 +108,13 @@ export default function HomeScreen(props) {
       longitudeStr
     );
 
-    if (dist < 3000) {
+    if (dist < 1500 || true) {
+      console.log(data.sat_data.image);
       let obj = {
         name,
         lat: latitudeStr,
-        lon: longitudeStr
+        lon: longitudeStr,
+        satData: data.sat_data
       };
       ARRAY.push(obj);
     }
@@ -128,7 +130,7 @@ export default function HomeScreen(props) {
       .then(res => res.json())
       .then(res => {
         res.forEach(e => {
-          callSatellite(e.name, e.line1, e.line2);
+          callSatellite(e.name, e.line1, e.line2, e);
         });
       })
       .catch(reason => {
@@ -145,9 +147,22 @@ export default function HomeScreen(props) {
 
   renderItem = ({ item }) => (
     <TouchableNativeFeedback
-      onPress={() => props.navigation.navigate("Satellite")}
+      onPress={() => props.navigation.navigate("Satellite", {
+        name: item.name,
+        image: item.satData.image
+      })}
     >
-      <ListItem title={item.name} bottomDivider chevron />
+      <ListItem
+        title={item.name}
+        leftAvatar={{
+          source: `http://${item.satData.image}` && {
+            uri: `http://${item.satData.image}`
+          }
+        }}
+        subtitle={item.satData.info}
+        bottomDivider
+        chevron
+      />
     </TouchableNativeFeedback>
   );
 
